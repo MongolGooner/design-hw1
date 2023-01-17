@@ -1,6 +1,9 @@
 ﻿using Xunit;
 using design_hw1;
 using Xunit.Sdk;
+using System.Numerics;
+using Moq;
+using Vector = design_hw1.Vector;
 
 namespace UnitTests
 {
@@ -82,6 +85,124 @@ namespace UnitTests
 
         }
 
+
+        [Fact]
+        public void MoveTest()
+        {
+            //arrange
+            Mock<IMovable> mockMovable = new Mock<IMovable>();
+
+            mockMovable.SetupGet<Vector>(x => x.Position).Returns(new Vector(12, 5)).Verifiable();
+            mockMovable.SetupGet<Vector>(x => x.Velocity).Returns(new Vector(-7, 3)).Verifiable();
+
+
+            //act
+            new Move(mockMovable.Object).Execute();
+            //assert
+
+            mockMovable.VerifySet(x => x.Position = new Vector(5, 8));
+            mockMovable.Verify();
+        }
+
+        [Fact]
+        public void PositionNotReadableTest()
+        {
+            //arrange
+            Mock<IMovable> mockMovable = new Mock<IMovable>();
+
+            mockMovable.SetupGet<Vector>(x => x.Position).Throws<Exception>().Verifiable();
+            mockMovable.SetupGet<Vector>(x => x.Velocity).Returns(new Vector(-7, 3)).Verifiable();
+            //act
+            //assert
+            Assert.Throws<Exception>(() => new Move(mockMovable.Object).Execute());
+        }
+
+        [Fact]
+        public void VelocityNotReadableTest()
+        {
+            //arrange
+            Mock<IMovable> mockMovable = new Mock<IMovable>();
+
+            mockMovable.SetupGet<Vector>(x => x.Velocity).Throws<Exception>().Verifiable();
+            mockMovable.SetupGet<Vector>(x => x.Position).Returns(new Vector(-7, 3)).Verifiable();
+            //act
+            //assert
+            Assert.Throws<Exception>(() => new Move(mockMovable.Object).Execute());
+        }
+        [Fact]
+        public void PositionNotWriteableTest()
+        {
+            //arrange
+            Mock<IMovable> mockMovable = new Mock<IMovable>();
+
+            mockMovable.SetupGet(x => x.Position).Returns(new Vector(12, 5)).Verifiable();
+            mockMovable.SetupGet(x => x.Velocity).Returns(new Vector(-7, 3)).Verifiable();
+            mockMovable.SetupSet(x => x.Position = It.IsAny<Vector>()).Throws<Exception>().Verifiable();
+
+            //act
+            //new Move(mockMovable.Object).Execute();
+            //assert
+
+            Assert.Throws<Exception>(() => new Move(mockMovable.Object).Execute());
+        }
+
+        [Fact]
+        public void RotationTest()
+        {
+            //arrange
+            Mock<IRotable> mock = new Mock<IRotable>();
+
+            mock.SetupGet(x => x.Direction).Returns(5).Verifiable();
+            mock.SetupGet(x => x.DirectionsNumber).Returns(8).Verifiable();
+
+            //act
+            new Rotate(mock.Object).Execute(4);
+
+            //assert
+            mock.VerifySet(x => x.Direction = 1);
+        }
+
+        [Fact]
+        public void RotationDirectionErrorTest()
+        {
+            //arrange
+            Mock<IRotable> mock = new Mock<IRotable>();
+
+            mock.SetupGet(x => x.Direction).Throws<Exception>().Verifiable();
+            mock.SetupGet(x => x.DirectionsNumber).Returns(8).Verifiable();
+
+            //act
+            //assert
+            Assert.Throws<Exception>(() => new Rotate(mock.Object).Execute(4));
+        }
+
+        [Fact]
+        public void RotationDirectionsNumberErrorTest()
+        {
+            //arrange
+            Mock<IRotable> mock = new Mock<IRotable>();
+
+            mock.SetupGet(x => x.Direction).Returns(5).Verifiable();
+            mock.SetupGet(x => x.DirectionsNumber).Throws<Exception>().Verifiable();
+
+            //act
+            //assert
+            Assert.Throws<Exception>(() => new Rotate(mock.Object).Execute(4));
+        }
+
+        [Fact]
+        public void RotationDirectionSetErrorTest()
+        {
+            //arrange
+            Mock<IRotable> mock = new Mock<IRotable>();
+
+            mock.SetupGet(x => x.Direction).Returns(5).Verifiable();
+            mock.SetupGet(x => x.DirectionsNumber).Returns(8).Verifiable();
+            mock.SetupSet(x => x.Direction = It.IsAny<int>()).Throws<Exception>().Verifiable();
+            //act
+            //assert
+            Assert.Throws<Exception>(() => new Rotate(mock.Object).Execute(4));
+        }
     }
 
 }
