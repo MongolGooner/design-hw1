@@ -6,19 +6,22 @@ using System.Threading.Tasks;
 
 namespace design_hw1
 {
-    public  class ExceptionHandler
+    public class ExceptionHandler : IExceptionHandler
     {
-        public static Dictionary<string, Action<ICommand, Exception>> CommandsHandler = new Dictionary<string, Action<ICommand, Exception>>();
+        public Dictionary<string, Action<ICommand, Exception>> CommandsHandler;
 
-        
-        public static void Handle(ICommand command, Exception ex)
+        public ExceptionHandler()
+        {
+            CommandsHandler = new Dictionary<string, Action<ICommand, Exception>>();
+        }
+        public void Handle(ICommand command, Exception ex)
         {
             var action = CommandsHandler[command.GetType().ToString()];
             if (action != null) action(command, ex);
 
         }
 
-        public static void Setup(string command, Action<ICommand, Exception> action)
+        public void Setup(string command, Action<ICommand, Exception> action)
         {
             CommandsHandler.Add(command, action);
         }

@@ -215,28 +215,28 @@ namespace UnitTests
             //arrange
             var mockMove = new Mock<ICommand>();
             mockMove.Setup(x => x.Execute()).Throws(new Exception());
-            var queueCalls = new Dictionary<int, string>();
-            var count = 1;
+            var queueCalls = new List< string>();
             var queue = new Queue<ICommand>();
-            ExceptionHandler.Setup(typeof(Move).ToString(), (cmd, ex) => queue.Enqueue(new Log(cmd, ex)));
+            var exceptionHandler = new ExceptionHandler();
+            exceptionHandler.Setup(typeof(Move).ToString(), (cmd, ex) => queue.Enqueue(new Log(cmd, ex)));
             queue.Enqueue(new Move());
             //act
             while (queue.Count > 0)
             {
                 var command = queue.Dequeue();
-                queueCalls.Add(count++, command.GetType().ToString());
+                queueCalls.Add( command.GetType().ToString());
                 try
                 {
                     command.Execute();
                 }
                 catch (Exception ex)
                 {
-                    ExceptionHandler.Handle(command, ex);
+                    exceptionHandler.Handle(command, ex);
                 }
             }
             //assert
-            Assert.Equal(queueCalls[1], typeof(Move).ToString());
-            Assert.Equal(queueCalls[2], typeof(Log).ToString());
+            Assert.Equal(queueCalls[0], typeof(Move).ToString());
+            Assert.Equal(queueCalls[1], typeof(Log).ToString());
         }
         [Fact]
         public void TestRepeat()
@@ -244,31 +244,30 @@ namespace UnitTests
             //arrange
             var mockMove = new Mock<ICommand>();
             mockMove.Setup(x => x.Execute()).Throws(new Exception());
-            var queueCalls = new Dictionary<int, string>();
-            var count = 1;
-            var queue = new Queue<ICommand>();
-            ExceptionHandler.Setup(typeof(Move).ToString(), (cmd, ex) => queue.Enqueue(new RepeatCommand(cmd)));
-            ExceptionHandler.Setup(typeof(RepeatCommand).ToString(), (cmd, ex) => queue.Enqueue(new Log(cmd, ex)));
+            var queueCalls = new List<string>();
+            var queue = new Queue<ICommand>(); var exceptionHandler = new ExceptionHandler();
+            exceptionHandler.Setup(typeof(Move).ToString(), (cmd, ex) => queue.Enqueue(new RepeatCommand(cmd)));
+            exceptionHandler.Setup(typeof(RepeatCommand).ToString(), (cmd, ex) => queue.Enqueue(new Log(cmd, ex)));
 
             queue.Enqueue(new Move());
             //act
             while (queue.Count > 0)
             {
                 var command = queue.Dequeue();
-                queueCalls.Add(count++, command.GetType().ToString());
+                queueCalls.Add(command.GetType().ToString());
                 try
                 {
                     command.Execute();
                 }
                 catch (Exception ex)
                 {
-                    ExceptionHandler.Handle(command, ex);
+                    exceptionHandler.Handle(command, ex);
                 }
             }
             //assert
-            Assert.Equal(queueCalls[1], typeof(Move).ToString());
-            Assert.Equal(queueCalls[2], typeof(RepeatCommand).ToString());
-            Assert.Equal(queueCalls[3], typeof(Log).ToString());
+            Assert.Equal(queueCalls[0], typeof(Move).ToString());
+            Assert.Equal(queueCalls[1], typeof(RepeatCommand).ToString());
+            Assert.Equal(queueCalls[2], typeof(Log).ToString());
         }
 
         [Fact]
@@ -279,10 +278,10 @@ namespace UnitTests
             mockMove.Setup(x => x.Execute()).Throws(new Exception());
             var queueCalls = new Dictionary<int, string>();
             var count = 1;
-            var queue = new Queue<ICommand>();
-            ExceptionHandler.Setup(typeof(Move).ToString(), (cmd, ex) => queue.Enqueue(new RepeatTwiceCommand(cmd)));
-            ExceptionHandler.Setup(typeof(RepeatTwiceCommand).ToString(), (cmd, ex) => queue.Enqueue(new RepeatCommand(cmd)));
-            ExceptionHandler.Setup(typeof(RepeatCommand).ToString(), (cmd, ex) => queue.Enqueue(new Log(cmd, ex)));
+            var queue = new Queue<ICommand>(); var exceptionHandler = new ExceptionHandler();
+            exceptionHandler.Setup(typeof(Move).ToString(), (cmd, ex) => queue.Enqueue(new RepeatTwiceCommand(cmd)));
+            exceptionHandler.Setup(typeof(RepeatTwiceCommand).ToString(), (cmd, ex) => queue.Enqueue(new RepeatCommand(cmd)));
+            exceptionHandler.Setup(typeof(RepeatCommand).ToString(), (cmd, ex) => queue.Enqueue(new Log(cmd, ex)));
             queue.Enqueue(new Move());
             //act
             while (queue.Count > 0)
@@ -295,7 +294,7 @@ namespace UnitTests
                 }
                 catch (Exception ex)
                 {
-                    ExceptionHandler.Handle(command, ex);
+                    exceptionHandler.Handle(command, ex);
                 }
             }
             //assert
