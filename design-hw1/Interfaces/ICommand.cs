@@ -6,11 +6,8 @@ using System.Threading.Tasks;
 
 namespace design_hw1
 {
-    public class Rotate : ICommand
+    public  interface ICommand
     {
-        public void Execute()
-        {
-            throw new NotImplementedException();
-        }
+        void Execute();
     }
 }
