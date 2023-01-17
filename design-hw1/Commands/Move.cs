@@ -6,18 +6,11 @@ using System.Threading.Tasks;
 
 namespace design_hw1
 {
-    public class Move
+    public class Move : ICommand
     {
-        IMovable MovableObject;
-
-        public Move(IMovable movableObject)
-        {
-            this.MovableObject = movableObject;
-        }
-
         public void Execute()
         {
-            MovableObject.Position = Vector.Add(MovableObject.Position, MovableObject.Velocity);
+            throw new NotImplementedException();
         }
     }
 }
